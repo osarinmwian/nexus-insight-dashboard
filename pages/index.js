@@ -19,19 +19,50 @@ export default function Dashboard() {
     console.log('localStorage nexus_user_id:', localStorage.getItem('nexus_user_id'));
   }, [events]);
 
-  const loadEvents = () => {
+  const loadEvents = async () => {
+    try {
+      // Try to load from API first (real-time data)
+      if (typeof fetch !== 'undefined') {
+        const response = await fetch('/api/events');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Dashboard loaded events from API:', data.count);
+          setEvents(data.events);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load events from API:', error);
+    }
+    
+    // Fallback to localStorage
     const storedEvents = storage.getEvents();
-    console.log('Dashboard loaded events:', storedEvents.length);
+    console.log('Dashboard loaded events from localStorage:', storedEvents.length);
     setEvents(storedEvents);
     setLoading(false);
   };
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
     if (confirm('Are you sure you want to clear all analytics data? This cannot be undone.')) {
-      storage.clearEvents();
-      localStorage.removeItem('nexus_user_id');
-      setEvents([]);
-      alert('All data cleared successfully!');
+      try {
+        // Clear API data if fetch is available
+        if (typeof fetch !== 'undefined') {
+          await fetch('/api/events', { method: 'DELETE' });
+        }
+        // Clear localStorage
+        storage.clearEvents();
+        localStorage.removeItem('nexus_user_id');
+        setEvents([]);
+        alert('All data cleared successfully!');
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        // Still clear localStorage even if API fails
+        storage.clearEvents();
+        localStorage.removeItem('nexus_user_id');
+        setEvents([]);
+        alert('Data cleared from localStorage.');
+      }
     }
   };
 
