@@ -1,5 +1,10 @@
 // API endpoint to receive events from mobile app
 export default function handler(req, res) {
+  // Handle ngrok free account requirements
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  
+  console.log(`🔍 Sync API called: ${req.method} ${req.url}`);
+  console.log('🔍 Headers:', req.headers['user-agent']?.substring(0, 50));
   if (req.method === 'POST') {
     try {
       const { events, userId, currentScreen } = req.body;
@@ -7,7 +12,8 @@ export default function handler(req, res) {
         count: events?.length, 
         userId, 
         currentScreen,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        userAgent: req.headers['user-agent']?.substring(0, 30)
       });
       
       // Store events in a simple in-memory store for real-time access
@@ -47,6 +53,7 @@ export default function handler(req, res) {
     console.log('🗑️ All events cleared from server');
     res.status(200).json({ message: 'All events cleared', count: 0, clearAll: true });
   } else {
+    console.log(`❌ Method ${req.method} not allowed on /api/sync`);
     res.status(405).json({ error: 'Method not allowed' });
   }
 }

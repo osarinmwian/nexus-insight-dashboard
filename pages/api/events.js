@@ -5,7 +5,9 @@ export default function handler(req, res) {
     
     console.log('📊 Dashboard requesting events:', {
       count: events.length,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      globalExists: !!global.nexusEvents,
+      firstEvent: events[0]?.eventName || 'none'
     });
     
     // Set cache headers to prevent 304 responses
