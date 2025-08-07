@@ -48,7 +48,7 @@ export default function Dashboard() {
       try {
         // Clear API data if fetch is available
         if (typeof fetch !== 'undefined') {
-          await fetch('/api/events', { method: 'DELETE' });
+          await fetch('/api/sync', { method: 'DELETE' });
         }
         // Clear localStorage
         storage.clearEvents();

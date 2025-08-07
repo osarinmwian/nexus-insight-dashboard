@@ -11,12 +11,19 @@ export default function handler(req, res) {
       });
       
       // Store events in a simple in-memory store for real-time access
-      if (!global.nexusEvents) global.nexusEvents = [];
+      if (!global?.nexusEvents) global?.nexusEvents = [];
+      
+      // If mobile sends empty events array, it means data was cleared
       if (events && Array.isArray(events)) {
-        global.nexusEvents.push(...events);
-        // Keep only last 1000 events
-        if (global.nexusEvents.length > 1000) {
-          global.nexusEvents = global.nexusEvents.slice(-1000);
+        if (events.length === 0) {
+          global?.nexusEvents = []; // Clear server storage too
+          console.log('🗑️ Server events cleared due to empty mobile events');
+        } else {
+          global.nexusEvents.push(...events);
+          // Keep only last 1000 events
+          if (global?.nexusEvents?.length > 1000) {
+            global?.nexusEvents = global?.nexusEvents.slice(-1000);
+          }
         }
       }
       
@@ -45,7 +52,8 @@ export default function handler(req, res) {
   } else if (req.method === 'DELETE') {
     // Clear all stored events
     global.nexusEvents = [];
-    res.status(200).json({ message: 'All events cleared', count: 0 });
+    console.log('🗑️ All events cleared from server');
+    res.status(200).json({ message: 'All events cleared', count: 0, clearAll: true });
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }
