@@ -1,9 +1,12 @@
 export default function handler(req, res) {
   if (req.method === 'GET') {
-    // Get events from localStorage simulation
-    const events = typeof localStorage !== 'undefined' 
-      ? JSON.parse(localStorage.getItem('nexus_events') || '[]')
-      : [];
+    // Get events from global store (populated by sync API)
+    const events = global.nexusEvents || [];
+    
+    console.log('📊 Dashboard requesting events:', {
+      count: events.length,
+      timestamp: new Date().toISOString()
+    });
     
     // Set cache headers to prevent 304 responses
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');

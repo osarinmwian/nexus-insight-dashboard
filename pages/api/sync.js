@@ -2,8 +2,13 @@
 export default function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { events, userId } = req.body;
-      console.log('Received events from mobile:', { count: events?.length, userId });
+      const { events, userId, currentScreen } = req.body;
+      console.log('📱 Received events from mobile:', { 
+        count: events?.length, 
+        userId, 
+        currentScreen,
+        timestamp: new Date().toISOString()
+      });
       
       // Store events in a simple in-memory store for real-time access
       if (!global.nexusEvents) global.nexusEvents = [];
@@ -15,10 +20,16 @@ export default function handler(req, res) {
         }
       }
       
+      console.log('✅ Events stored successfully:', {
+        received: events?.length || 0,
+        totalStored: global.nexusEvents?.length || 0
+      });
+      
       res.status(200).json({ 
         success: true, 
         message: `Received ${events?.length || 0} events`,
         userId,
+        currentScreen,
         totalStored: global.nexusEvents?.length || 0
       });
     } catch (error) {
