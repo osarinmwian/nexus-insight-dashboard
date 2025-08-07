@@ -11,20 +11,12 @@ export default function handler(req, res) {
       });
       
       // Store events in a simple in-memory store for real-time access
-      if (!global?.nexusEvents) global?.nexusEvents = [];
+      if (!global.nexusEvents) global.nexusEvents = [];
       
-      // If mobile sends empty events array, it means data was cleared
+      // Replace events instead of appending to avoid duplicates
       if (events && Array.isArray(events)) {
-        if (events.length === 0) {
-          global?.nexusEvents = []; // Clear server storage too
-          console.log('🗑️ Server events cleared due to empty mobile events');
-        } else {
-          global.nexusEvents.push(...events);
-          // Keep only last 1000 events
-          if (global?.nexusEvents?.length > 1000) {
-            global?.nexusEvents = global?.nexusEvents.slice(-1000);
-          }
-        }
+        global.nexusEvents = events; // Replace with current mobile events
+        console.log('🔄 Events replaced on server');
       }
       
       console.log('✅ Events stored successfully:', {
