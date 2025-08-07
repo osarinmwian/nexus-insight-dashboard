@@ -9,12 +9,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadEvents();
-    const interval = setInterval(loadEvents, 5000); // Refresh every 5 seconds
+    const interval = setInterval(loadEvents, 2000); // Refresh every 2 seconds
     return () => clearInterval(interval);
   }, []);
 
+  // Debug localStorage
+  useEffect(() => {
+    console.log('localStorage nexus_events:', localStorage.getItem('nexus_events'));
+    console.log('localStorage nexus_user_id:', localStorage.getItem('nexus_user_id'));
+  }, [events]);
+
   const loadEvents = () => {
     const storedEvents = storage.getEvents();
+    console.log('Dashboard loaded events:', storedEvents.length);
     setEvents(storedEvents);
     setLoading(false);
   };
