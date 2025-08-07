@@ -42,6 +42,10 @@ export default function handler(req, res) {
       events: global.nexusEvents || [],
       count: global.nexusEvents?.length || 0
     });
+  } else if (req.method === 'DELETE') {
+    // Clear all stored events
+    global.nexusEvents = [];
+    res.status(200).json({ message: 'All events cleared', count: 0 });
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }
