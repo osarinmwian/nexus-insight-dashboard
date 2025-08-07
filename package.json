@@ -1,0 +1,21 @@
+{
+  "name": "@nexus/insight-dashboard",
+  "version": "1.0.0",
+  "description": "Enterprise analytics dashboard for Nexus Insight Pro SDK",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export": "next export"
+  },
+  "dependencies": {
+    "next": "^15.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.8.0",
+    "date-fns": "^2.30.0"
+  },
+  "keywords": ["analytics", "dashboard", "react", "nextjs"],
+  "author": "osarinmwian",
+  "license": "MIT"
+}
