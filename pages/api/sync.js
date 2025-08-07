@@ -22,7 +22,7 @@ export default function handler(req, res) {
       
       console.log('✅ Events stored successfully:', {
         received: events?.length || 0,
-        totalStored: global.nexusEvents?.length || 0
+        totalStored: global?.nexusEvents?.length || 0
       });
       
       res.status(200).json({ 
