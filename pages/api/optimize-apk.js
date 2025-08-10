@@ -13,10 +13,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  try {
-    const chunks = [];
-    req.on('data', chunk => chunks.push(chunk));
-    req.on('end', async () => {
+  const chunks = [];
+  
+  req.on('data', chunk => chunks.push(chunk));
+  
+  req.on('end', async () => {
+    try {
       const buffer = Buffer.concat(chunks);
       const filename = `upload_${Date.now()}.apk`;
       const filepath = path.join('./uploads', filename);
@@ -25,12 +27,16 @@ export default async function handler(req, res) {
       
       const result = await optimizeAPK(filepath);
       res.status(200).json(result);
-    });
-    
-  } catch (error) {
-    console.error('APK optimization error:', error);
-    res.status(500).json({ error: error.message });
-  }
+    } catch (error) {
+      console.error('APK optimization error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  req.on('error', (error) => {
+    console.error('Request error:', error);
+    res.status(500).json({ error: 'Upload failed' });
+  });
 }
 
 async function optimizeAPK(inputPath) {
