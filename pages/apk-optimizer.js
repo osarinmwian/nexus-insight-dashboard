@@ -6,7 +6,51 @@ export default function APKOptimizer() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const router = useRouter();
+
+  const shareAPK = (result) => {
+    setShowShareModal(true);
+  };
+
+  const shareVia = async (platform) => {
+    try {
+      // Generate shareable link
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: result.downloadUrl.split('/').pop(),
+          originalSize: result.originalSize,
+          optimizedSize: result.optimizedSize,
+          percentSaved: result.percentSaved
+        })
+      });
+      
+      const { shareUrl } = await response.json();
+      const text = `🚀 Optimized APK ready! Size reduced by ${result.percentSaved}% (saved ${result.sizeSaved})`;
+      
+      const links = {
+        whatsapp: `https://wa.me/?text=${encodeURIComponent(text + ' ' + shareUrl)}`,
+        email: `mailto:?subject=Optimized APK&body=${encodeURIComponent(text + '\n\nDownload: ' + shareUrl)}`,
+        telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
+        twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`,
+        copy: shareUrl
+      };
+      
+      if (platform === 'copy') {
+        navigator.clipboard.writeText(shareUrl);
+        alert('Shareable link copied to clipboard!');
+      } else {
+        window.open(links[platform], '_blank');
+      }
+      
+    } catch (error) {
+      alert('Failed to generate share link');
+    }
+    
+    setShowShareModal(false);
+  };
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -150,12 +194,27 @@ export default function APKOptimizer() {
                       color: 'white',
                       padding: '10px 20px',
                       textDecoration: 'none',
-                      borderRadius: '4px'
+                      borderRadius: '4px',
+                      marginRight: '10px'
                     }}
                   >
                     📦 Download AAB Bundle
                   </a>
                 )}
+                
+                <button
+                  onClick={() => shareAPK(result)}
+                  style={{
+                    backgroundColor: '#6f42c1',
+                    color: 'white',
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📤 Share APK
+                </button>
               </div>
             </div>
           )}
@@ -172,6 +231,80 @@ export default function APKOptimizer() {
           <li><strong>Size Reduction:</strong> Typically 20-40% smaller</li>
         </ul>
       </div>
+      
+      {showShareModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '12px',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h3 style={{ marginTop: 0 }}>📤 Share Optimized APK</h3>
+            <p>Share your optimized APK ({result.percentSaved}% smaller) via:</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+              <button onClick={() => shareVia('whatsapp')} style={shareButtonStyle('#25D366')}>
+                📱 WhatsApp
+              </button>
+              <button onClick={() => shareVia('email')} style={shareButtonStyle('#EA4335')}>
+                ✉️ Email
+              </button>
+              <button onClick={() => shareVia('telegram')} style={shareButtonStyle('#0088CC')}>
+                ✈️ Telegram
+              </button>
+              <button onClick={() => shareVia('twitter')} style={shareButtonStyle('#1DA1F2')}>
+                🐦 Twitter
+              </button>
+            </div>
+            
+            <button onClick={() => shareVia('copy')} style={{
+              ...shareButtonStyle('#6c757d'),
+              width: '100%',
+              marginBottom: '15px'
+            }}>
+              📋 Copy Link
+            </button>
+            
+            <button 
+              onClick={() => setShowShareModal(false)}
+              style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #dee2e6',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const shareButtonStyle = (color) => ({
+  backgroundColor: color,
+  color: 'white',
+  border: 'none',
+  padding: '12px 16px',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 'bold'
+});
