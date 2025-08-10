@@ -129,6 +129,7 @@ export default function Dashboard() {
         <span className="sync-indicator">●</span>
         <span>Live sync active - {events.length} events tracked</span>
         <a href="/test" className="test-link">Generate Test Data</a>
+        <a href="/apk-optimizer" className="test-link">📱 APK Optimizer</a>
         <button onClick={clearAllData} className="clear-btn">Clear All Data</button>
       </div>
       
