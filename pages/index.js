@@ -22,7 +22,7 @@ export default function Dashboard() {
   const loadEvents = async () => {
     try {
       // Try to load from API first (real-time data)
-      if (typeof fetch !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
         const response = await fetch('/api/events');
         if (response.ok) {
           const data = await response.json();
@@ -33,7 +33,7 @@ export default function Dashboard() {
         }
       }
     } catch (error) {
-      console.error('Failed to load events from API:', error);
+      console.warn('API not available, using localStorage:', error.message);
     }
     
     // Fallback to localStorage
